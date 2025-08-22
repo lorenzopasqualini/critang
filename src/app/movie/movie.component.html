@@ -1,0 +1,95 @@
+<div class="movie-container">
+  <div class="search-section">
+    <h1>Movie Explorer</h1>
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="onSearchChange()"
+        placeholder="Search for movies..."
+        class="search-input"
+      >
+      <button (click)="searchMovies()" class="search-button">Search</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button 
+      (click)="getPopularMovies()" 
+      [class.active]="currentFilter === 'popular'"
+      class="filter-button"
+    >
+      Popular
+    </button>
+    <button 
+      (click)="getTopRatedMovies()" 
+      [class.active]="currentFilter === 'top-rated'"
+      class="filter-button"
+    >
+      Top Rated
+    </button>
+    <button 
+      (click)="getNowPlayingMovies()" 
+      [class.active]="currentFilter === 'now-playing'"
+      class="filter-button"
+    >
+      Now Playing
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading movies...</p>
+  </div>
+
+  <div class="error" *ngIf="error()">
+    <p>{{ error() }}</p>
+    <button (click)="retry()" class="retry-button">Retry</button>
+  </div>
+
+  <div class="movies-grid" *ngIf="!loading() && !error()">
+    <div 
+      class="movie-card" 
+      *ngFor="let movie of movies()"
+      (click)="selectMovie(movie)"
+    >
+      <div class="movie-poster">
+        <img 
+          [src]="getPosterUrl(movie.poster_path)" 
+          [alt]="movie.title"
+          (error)="onImageError($event)"
+        >
+        <div class="movie-rating">
+          <span class="rating-text">{{ movie.vote_average.toFixed(1) }}</span>
+        </div>
+      </div>
+      <div class="movie-info">
+        <h3 class="movie-title">{{ movie.title }}</h3>
+        <p class="movie-date">{{ formatDate(movie.release_date) }}</p>
+        <p class="movie-overview">{{ truncateText(movie.overview, 100) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="!loading() && !error() && movies().length > 0">
+    <button 
+      (click)="previousPage()" 
+      [disabled]="currentPage === 1"
+      class="page-button"
+    >
+      Previous
+    </button>
+    <span class="page-info">Page {{ currentPage }} of {{ totalPages() }}</span>
+    <button 
+      (click)="nextPage()" 
+      [disabled]="currentPage >= totalPages()"
+      class="page-button"
+    >
+      Next
+    </button>
+  </div>
+
+  <div class="no-results" *ngIf="!loading() && !error() && movies().length === 0">
+    <p>No movies found. Try a different search term.</p>
+  </div>
+</div>
